@@ -47,10 +47,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/tbent/projects/archive/viscrupt/dg_waves_defunct
+CMAKE_SOURCE_DIR = /home/tbent/projects/dg_play
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/tbent/projects/archive/viscrupt/dg_waves_defunct
+CMAKE_BINARY_DIR = /home/tbent/projects/dg_play
 
 #=============================================================================
 # Target rules for target CMakeFiles/viscosaur.dir
@@ -59,7 +59,7 @@ CMAKE_BINARY_DIR = /home/tbent/projects/archive/viscrupt/dg_waves_defunct
 CMakeFiles/viscosaur.dir/all:
 	$(MAKE) -f CMakeFiles/viscosaur.dir/build.make CMakeFiles/viscosaur.dir/depend
 	$(MAKE) -f CMakeFiles/viscosaur.dir/build.make CMakeFiles/viscosaur.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/tbent/projects/archive/viscrupt/dg_waves_defunct/CMakeFiles  1 2 3
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/tbent/projects/dg_play/CMakeFiles  1 2 3
 	@echo "Built target viscosaur"
 .PHONY : CMakeFiles/viscosaur.dir/all
 
@@ -69,9 +69,9 @@ all: CMakeFiles/viscosaur.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/viscosaur.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/tbent/projects/archive/viscrupt/dg_waves_defunct/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tbent/projects/dg_play/CMakeFiles 3
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/viscosaur.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/tbent/projects/archive/viscrupt/dg_waves_defunct/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tbent/projects/dg_play/CMakeFiles 0
 .PHONY : CMakeFiles/viscosaur.dir/rule
 
 # Convenience name for target.

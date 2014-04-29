@@ -21,8 +21,26 @@
 
 using namespace dealii;
 
-const double a_rk[] = {0.0, 3.0/4.0, 1.0/3.0};
-const double b_rk[] = {1.0, 1.0/4.0, 2.0/3.0};
+//RK43 from the Schlegel 2009 paper
+double rk_c[5] = {0.0, 0.5, 0.5, 1.0, 1.0};
+double rk_ab[5][4] = {{0.0, 0.0, 0.0, 0.0},
+                     {0.5, 0.0, 0.0, 0.0},
+                     {-1.0 / 6.0, 2.0 / 3.0, 0.0, 0.0},
+                     {1.0 / 3.0, -1.0 / 3.0, 1.0, 0.0},
+                     {1.0 / 6.0, 1.0 / 3.0, 1.0 / 3.0, 1.0 / 6.0}};
+
+
+template<int dim>
+double ExactSolution<dim>::value(const dealii::Point<dim> &p,
+                             const unsigned int component = 0) const
+{
+    double angle = t;
+    double center_x = 0.5 * std::cos(angle);
+    double center_y = 0.5 * std::sin(angle);
+    double r2 = std::pow(p(0) - center_x, 2.0) + std::pow(p(1) - center_y, 2.0);
+    return std::exp(-r2 * 100);
+}
+
 //------------------------------------------------------------------------------
 // Speed of advection
 //------------------------------------------------------------------------------
@@ -95,14 +113,19 @@ void BoundaryValues<dim>::value_list(const std::vector<Point<dim> > &points,
 // Constructor
 //------------------------------------------------------------------------------
 template <int dim>
-Step12<dim>::Step12 (unsigned int degree)
+Step12<dim>::Step12 (bp::dict params)
       :
       mapping (),
-      degree (degree),
+      degree (bp::extract<int>(params["degree"])),
       fe (QGaussLobatto<1>(degree + 1)),
       dof_handler (triangulation)
 { 
-   cfl = 1.0 / (2.0*degree + 1.0);
+   cfl = 1.0 / (2.0 * degree + 1.0);
+   max_level = bp::extract<int>(params["max_level"]);
+   min_level = bp::extract<int>(params["min_level"]);
+   epsilon = bp::extract<double>(params["epsilon_refine"]);
+   chi_refine = bp::extract<double>(params["chi_refine"]);
+   chi_coarse = bp::extract<double>(params["chi_coarse"]);
 }
 
 //------------------------------------------------------------------------------
@@ -111,13 +134,11 @@ Step12<dim>::Step12 (unsigned int degree)
 template <int dim>
 void Step12<dim>::setup_system ()
 {
-    std::cout << "Allocating memory ...\n";
+    /* std::cout << "Allocating memory ...\n"; */
 
     dof_handler.distribute_dofs (fe);
    
-    inv_mass_matrix.resize (triangulation.n_cells(), 
-                           FullMatrix<double>(fe.dofs_per_cell,
-                                              fe.dofs_per_cell));
+    inv_mass_matrix.reinit(dof_handler.n_dofs());
     predictor.reinit(dof_handler.n_dofs());
     solution.reinit (dof_handler.n_dofs());
     solution_old.reinit (dof_handler.n_dofs());
@@ -131,7 +152,7 @@ void Step12<dim>::setup_system ()
 template <int dim>
 void Step12<dim>::assemble_mass_matrix ()
 {
-   std::cout << "Constructing mass matrix ...\n";
+   // std::cout << "Constructing mass matrix ...\n";
    
    QGaussLobatto<dim>  quadrature_formula(fe.degree+1);
    
@@ -140,28 +161,20 @@ void Step12<dim>::assemble_mass_matrix ()
    
    const unsigned int   dofs_per_cell = fe.dofs_per_cell;
    const unsigned int   n_q_points    = quadrature_formula.size();
+   std::vector<types::global_dof_index> local_dof_indices (dofs_per_cell);
    
-   FullMatrix<double>   cell_matrix (dofs_per_cell, dofs_per_cell);
-      
    // Cell iterator
    typename DoFHandler<dim>::active_cell_iterator 
       cell = dof_handler.begin_active(),
       endc = dof_handler.end();
-   for (unsigned int c = 0; cell!=endc; ++cell, ++c)
-   {
-      fe_values.reinit (cell);
-      cell_matrix = 0.0;
-      
-      for (unsigned int q_point=0; q_point<n_q_points; ++q_point)
-         for (unsigned int i=0; i<dofs_per_cell; ++i)
-            for (unsigned int j=0; j<dofs_per_cell; ++j)
-               cell_matrix(i,j) += fe_values.shape_value (i, q_point) *
-                                   fe_values.shape_value (j, q_point) *
-                                   fe_values.JxW (q_point);
-      
-      // Invert cell_matrix
-      inv_mass_matrix[c].invert (cell_matrix);      
-   }
+    for (unsigned int c = 0; cell!=endc; ++cell, ++c)
+    {
+        fe_values.reinit (cell);
+        cell->get_dof_indices (local_dof_indices);
+        for (unsigned int q_point=0; q_point<n_q_points; ++q_point)
+            inv_mass_matrix[local_dof_indices[q_point]] =
+                               1.0 / fe_values.JxW(q_point);
+    }
    
 }
 //------------------------------------------------------------------------------
@@ -170,31 +183,11 @@ void Step12<dim>::assemble_mass_matrix ()
 template <int dim>
 void Step12<dim>::set_initial_condition ()
 {
-   VectorTools::create_right_hand_side(dof_handler,
+    VectorTools::create_right_hand_side(dof_handler,
                                        QGaussLobatto<dim>(fe.degree + 1),
                                        InitialCondition<dim>(),
                                        solution);
-   
-   // Multiply by inverse mass matrix
-   const unsigned int   dofs_per_cell = fe.dofs_per_cell;
-   std::vector<unsigned int> local_dof_indices (dofs_per_cell);
-   Vector<double> rhs (dofs_per_cell);
-   typename DoFHandler<dim>::active_cell_iterator
-      cell = dof_handler.begin_active(),
-      endc = dof_handler.end();
-   for (unsigned int c = 0; cell!=endc; ++cell, ++c)
-   {
-      cell->get_dof_indices (local_dof_indices);
-      
-      rhs = 0.0;
-      for (unsigned int i=0; i<dofs_per_cell; ++i)
-         for (unsigned int j=0; j<dofs_per_cell; ++j)
-            rhs(i) += inv_mass_matrix[c](i,j) *
-                      solution(local_dof_indices[j]);
-      
-      for (unsigned int i=0; i<dofs_per_cell; ++i)
-         solution(local_dof_indices[i]) = rhs(i);
-   }
+    solution.scale(inv_mass_matrix);
 }
 //------------------------------------------------------------------------------
 // Create mesh worker for integration
@@ -242,7 +235,7 @@ void Step12<dim>::setup_mesh_worker (RHSIntegrator<dim>& rhs_integrator)
 template <int dim>
 void Step12<dim>::compute_dt()
 {
-    std::cout << "Computing local time-step ...\n";
+    // std::cout << "Computing local time-step ...\n";
 
     dt = 1.0e20;
 
@@ -284,7 +277,8 @@ void Step12<dim>::assemble_rhs (RHSIntegrator<dim>& rhs_integrator)
 
    MeshWorker::loop<dim, dim, MeshWorker::DoFInfo<dim>,
                     MeshWorker::IntegrationInfoBox<dim> >
-      (dof_handler.begin_active(), dof_handler.end(),
+      (dof_handler.begin_active(current_level), 
+       dof_handler.end_active(current_level),
        rhs_integrator.dof_info, 
        rhs_integrator.info_box,
        &Step12<dim>::integrate_cell_term,
@@ -293,25 +287,7 @@ void Step12<dim>::assemble_rhs (RHSIntegrator<dim>& rhs_integrator)
        rhs_integrator.assembler, true);
 
    // Multiply by inverse mass matrix
-   const unsigned int   dofs_per_cell = fe.dofs_per_cell;
-   std::vector<unsigned int> local_dof_indices (dofs_per_cell);
-   Vector<double> rhs (dofs_per_cell);
-   typename DoFHandler<dim>::active_cell_iterator 
-      cell = dof_handler.begin_active(),
-      endc = dof_handler.end();
-   for (unsigned int c = 0; cell!=endc; ++cell, ++c)
-   {
-      cell->get_dof_indices (local_dof_indices);
-
-      rhs = 0.0;
-      for (unsigned int i=0; i<dofs_per_cell; ++i)
-         for (unsigned int j=0; j<dofs_per_cell; ++j)
-            rhs(i) += inv_mass_matrix[c](i,j) * 
-                      right_hand_side(local_dof_indices[j]);
-
-      for (unsigned int i=0; i<dofs_per_cell; ++i)
-         right_hand_side(local_dof_indices[i]) = rhs(i);
-   }
+    right_hand_side.scale(inv_mass_matrix);
 }
 
 //------------------------------------------------------------------------------
@@ -395,6 +371,18 @@ void Step12<dim>::integrate_face_term(DoFInfo& dinfo1, DoFInfo& dinfo2,
     const FEValuesBase<dim>& fe_v          = info1.fe_values();
     const FEValuesBase<dim>& fe_v_neighbor = info2.fe_values();
 
+    //Check if we should build this term right now...
+    //If the other cell is from a coarser level, then we build the term.
+    //If the other cell is from the same level, then we build the term.
+    //If the other cell is from a finer level, do not build the term.
+    unsigned int here_level = fe_v.get_cell()->level();
+    unsigned int other_level = fe_v_neighbor.get_cell()->level();
+    if (here_level < other_level)
+    {
+        std::cout << "Skipping face" << std::endl;
+        return;
+    }
+
     const std::vector<double>& sol1 = info1.values[0][0];
     const std::vector<double>& sol2 = info2.values[0][0];
 
@@ -407,24 +395,25 @@ void Step12<dim>::integrate_face_term(DoFInfo& dinfo1, DoFInfo& dinfo2,
     {
         Point<dim> beta;
         advection_speed(fe_v.quadrature_point(point), beta);
-        const double C = 1.0;
+
+        // An upwind flux?
+        const double C = std::abs(normals[point][0] * beta[0] +
+                                  normals[point][1] * beta[1]);
         Point<dim> f_star_1 = flux_function(fe_v.quadrature_point(point), sol1[point]);
         Point<dim> f_star_2 = flux_function(fe_v.quadrature_point(point), sol2[point]);
         Point<dim> avg_flux = f_star_1 + f_star_2;
-        Point<dim> jump_flux = (1.0 / 3.0) * C * normals[point] * (sol1[point] - sol2[point]);
-        double flux = 0.5 * (avg_flux + jump_flux) * normals[point];
+        Point<dim> jump_flux = C * normals[point] * (sol1[point] - sol2[point]);
+        double flux = 0.5 * (avg_flux + jump_flux) * normals[point] * JxW[point];
         for (unsigned int i = 0; i < fe_v.dofs_per_cell; ++i)
         {
             local_vector1(i) -= flux *
-                fe_v.shape_value(i, point) *
-                JxW[point];
+                fe_v.shape_value(i, point);
         }
 
         for (unsigned int k = 0; k < fe_v_neighbor.dofs_per_cell; ++k)
         {
             local_vector2(k) += flux *
-                fe_v_neighbor.shape_value(k, point) *
-                JxW[point];
+                fe_v_neighbor.shape_value(k, point);
         }
     }
 }
@@ -442,34 +431,74 @@ void Step12<dim>::solve ()
 
     unsigned int iter = 0;
     double time = 0;
-    while (time < 10*M_PI && iter < 10000)
+    compute_dt();
+    Vector<double> zero;
+    zero.reinit(dof_handler.n_dofs());
+    zero = 0;
+
+    while (time < 10 * M_PI && iter < 10000)
     {
-        compute_dt();
         solution_old = solution;
 
-        // 3-stage RK scheme
-        for(unsigned int r=0; r < 3; ++r)
-        {
-            assemble_rhs (rhs_integrator);
-
-            for(unsigned int i=0; i<dof_handler.n_dofs(); ++i)
-                solution(i) = a_rk[r] * solution_old(i) +
-                    b_rk[r] * (solution(i) + dt * right_hand_side(i));
-        }
+        step(rhs_integrator, min_level, dt, zero);
 
         predictor = solution;
         predictor.sadd(2.0, -1.0, solution_old);
 
         ++iter; time += dt;
-        std::cout << "Iterations=" << iter 
-            << ", t = " << time << endl;
         if(std::fmod(iter, 10) == 0) 
         {
-            output_results(iter);
+            std::cout << "Iterations=" << iter 
+                << ", t = " << time << endl;
+            output_results(iter, time);
+            compute_error(time);
         }
         if(std::fmod(iter, 3) == 0)
         {
             refine_grid(predictor);
+            compute_dt();
+            Vector<double> zero;
+            zero.reinit(dof_handler.n_dofs());
+            zero = 0;
+        }
+    }
+}
+
+template <int dim>
+void Step12<dim>::step(RHSIntegrator<dim>& rhs_integrator,
+                       int level,
+                       double local_dt,
+                       Vector<double>& coarse_source)
+{
+    std::vector<Vector<double> > k(4);
+    Vector<double> r;
+    r.reinit(dof_handler.n_dofs());
+
+    for(int stage = 1; stage < 5; stage++)
+    {
+        current_level = level;
+        assemble_rhs(rhs_integrator);
+        k[stage - 1] = right_hand_side;
+
+        r = 0;
+        for (int prior_stage = 0; prior_stage < stage; prior_stage++)
+        {
+            // The reformulation of the Runge Kutta method in Schlegel 2009
+            // is in terms of the "squiggle" matrix
+            const double a_squiggle = rk_ab[stage][prior_stage] -
+                                      rk_ab[stage - 1][prior_stage];
+            r.add(a_squiggle * local_dt, k[prior_stage]);
+        }
+
+        // See page 3 of the Schlegel paper for this definition.
+        const double c_squiggle = rk_c[stage] - rk_c[stage - 1];
+        if (c_squiggle > 0 && level < max_level)
+        {
+            r.scale(1.0 / c_squiggle);
+            step(rhs_integrator, level + 1, local_dt / 2.0, r);
+        } else
+        {
+            solution.add(r);
         }
     }
 }
@@ -480,14 +509,9 @@ void Step12<dim>::solve ()
 template <int dim>
 void Step12<dim>::refine_grid (Vector<double> refinement_soln)
 {
-    std::cout << "Refining grid ...\n";
+    // std::cout << "Refining grid ...\n";
     Vector<float> refinement_indicators (triangulation.n_active_cells());
 
-    const double epsilon = 0.01;
-    const double chi_refine = 0.25;
-    const double chi_coarse = 0.10;
-    const int max_level = 5;
-    const int min_level = 2;
 
     const unsigned int dofs_per_cell = dof_handler.get_fe().dofs_per_cell;
     std::vector<unsigned int> dofs (dofs_per_cell);
@@ -562,32 +586,51 @@ void Step12<dim>::refine_grid (Vector<double> refinement_soln)
     soltrans.clear();
     solution.reinit(dof_handler.n_dofs());
     solution = solution_old;
-    inv_mass_matrix.resize (triangulation.n_cells(), 
-                               FullMatrix<double>(fe.dofs_per_cell,
-                                                  fe.dofs_per_cell));
-    assemble_mass_matrix ();
-    right_hand_side.reinit (dof_handler.n_dofs());
+    inv_mass_matrix.reinit(dof_handler.n_dofs());
+    assemble_mass_matrix();
+    right_hand_side.reinit(dof_handler.n_dofs());
 }
 
 //------------------------------------------------------------------------------
 // Save results to file
 //------------------------------------------------------------------------------
 template <int dim>
-void Step12<dim>::output_results (const unsigned int cycle) const
+void Step12<dim>::output_results (const unsigned int cycle, 
+                                  const double time) const
 {
-   // Output of the solution in
-   std::string filename = "sol-" + Utilities::int_to_string(cycle,5) + ".vtk";
-   std::cout << "Writing solution to <" << filename << ">" << std::endl;
-   std::ofstream outfile (filename.c_str());
-   
-   DataOut<dim> data_out;
-   data_out.attach_dof_handler (dof_handler);
-   data_out.add_data_vector (solution, "u");
-   
-   const int patch_division_ratio = 1;
-   data_out.build_patches(patch_division_ratio);
-   
-   data_out.write_vtk (outfile);
+    ExactSolution<dim> es(time);
+    Vector<double> exact_solution;
+    exact_solution.reinit(dof_handler.n_dofs());
+    VectorTools::interpolate(dof_handler, es, exact_solution);
+
+    // Output of the solution in
+    std::string filename = "sol-" + Utilities::int_to_string(cycle,5) + ".vtk";
+    /* std::cout << "Writing solution to <" << filename << ">" << std::endl; */
+    std::ofstream outfile (filename.c_str());
+
+    DataOut<dim> data_out;
+    data_out.attach_dof_handler(dof_handler);
+    data_out.add_data_vector(solution, "u");
+    data_out.add_data_vector(exact_solution, "exact");
+
+    const int patch_division_ratio = 1;
+    data_out.build_patches(patch_division_ratio);
+
+    data_out.write_vtk (outfile);
+}
+
+template <int dim>
+void Step12<dim>::compute_error(const double time) const
+{
+    ExactSolution<dim> es(time);
+    Vector<double> error;
+    VectorTools::integrate_difference(dof_handler, solution, es, error,
+                                      QGaussLobatto<dim>(degree + 1),
+                                      VectorTools::NormType::L2_norm);
+    const double total_local_error = error.l2_norm();
+    const double total_global_error = std::sqrt(Utilities::MPI::sum(
+                  total_local_error * total_local_error, MPI_COMM_WORLD));
+    std::cout << "Total L2 error: " << total_global_error << std::endl;
 }
 
 //------------------------------------------------------------------------------
@@ -597,7 +640,7 @@ template <int dim>
 void Step12<dim>::run ()
 {
    GridGenerator::hyper_cube (triangulation,-1.0,+1.0);
-   triangulation.refine_global (4);
+   triangulation.refine_global(min_level);
    
    std::cout << "Number of active cells:       "
              << triangulation.n_active_cells()
@@ -617,45 +660,9 @@ void Step12<dim>::run ()
        refine_grid(solution);
    }
    set_initial_condition ();
-   output_results(0);
+   output_results(0, 0.0);
    solve ();
 }
 
-//------------------------------------------------------------------------------
-// Main function
-//------------------------------------------------------------------------------
-int main ()
-{
-   try
-   {
-      Step12<2> dgmethod(1);
-      dgmethod.run ();
-   }
-   catch (std::exception &exc)
-   {
-      std::cerr << std::endl << std::endl
-                << "----------------------------------------------------"
-		          << std::endl;
-      std::cerr << "Exception on processing: " << std::endl
-		          << exc.what() << std::endl
-		          << "Aborting!" << std::endl
-		          << "----------------------------------------------------"
-		          << std::endl;
-      return 1;
-   }
-   catch (...)
-   {
-      std::cerr << std::endl << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
-      std::cerr << "Unknown exception!" << std::endl
-                << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
-      return 1;
-   };
-   
-   return 0;
-}
 
-
+template class Step12<2>;

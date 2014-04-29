@@ -31,6 +31,10 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+
+#include <boost/python/dict.hpp>
+#include <boost/python.hpp>
+namespace bp = boost::python;
 //------------------------------------------------------------------------------
 // Main class of the problem
 //------------------------------------------------------------------------------
@@ -50,11 +54,21 @@ class RHSIntegrator
          assembler;
 };
 
+template<int dim>
+class ExactSolution: public dealii::Function<dim>
+{
+    public:
+        ExactSolution(const double time) { t = time; }   
+        virtual double value(const dealii::Point<dim> &p,
+                             const unsigned int component) const;
+        double t;
+};
+
 template <int dim>
 class Step12
 {
    public:
-      Step12 (unsigned int degree);
+      Step12 (bp::dict params);
       void run ();
       
    private:
@@ -65,8 +79,12 @@ class Step12
       void assemble_rhs(RHSIntegrator<dim>&);
       void compute_dt();
       void solve();
+      void step(RHSIntegrator<dim>& rhs_integrator, int level,
+                double local_dt, dealii::Vector<double>& coarse_source);
       void refine_grid(dealii::Vector<double> refinement_soln);
-      void output_results(const unsigned int cycle) const;
+      void output_results(const unsigned int cycle,
+                          const double time) const;
+      void compute_error(const double time) const;
       
       dealii::Triangulation<dim> triangulation;
       const dealii::MappingQ1<dim> mapping;
@@ -75,15 +93,22 @@ class Step12
       dealii::FE_DGQArbitraryNodes<dim> fe;
       dealii::DoFHandler<dim> dof_handler;
       
-      std::vector< dealii::FullMatrix<double> > inv_mass_matrix;
+      dealii::Vector<double> inv_mass_matrix;
       
       dealii::Vector<double> predictor;
       dealii::Vector<double> solution;
       dealii::Vector<double> solution_old;
       dealii::Vector<double> right_hand_side;
+      int current_level;
       double dt;
       double cfl;
       double C;
+
+      int max_level;
+      int min_level;
+      double epsilon;
+      double chi_refine;
+      double chi_coarse;
    
       typedef dealii::MeshWorker::DoFInfo<dim> DoFInfo;
       typedef dealii::MeshWorker::IntegrationInfo<dim> CellInfo;

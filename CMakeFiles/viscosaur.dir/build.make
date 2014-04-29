@@ -35,10 +35,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/tbent/projects/archive/viscrupt/dg_waves_defunct
+CMAKE_SOURCE_DIR = /home/tbent/projects/dg_play
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/tbent/projects/archive/viscrupt/dg_waves_defunct
+CMAKE_BINARY_DIR = /home/tbent/projects/dg_play
 
 # Include any dependencies generated for this target.
 include CMakeFiles/viscosaur.dir/depend.make
@@ -51,17 +51,17 @@ include CMakeFiles/viscosaur.dir/flags.make
 
 CMakeFiles/viscosaur.dir/python_interface.cc.o: CMakeFiles/viscosaur.dir/flags.make
 CMakeFiles/viscosaur.dir/python_interface.cc.o: python_interface.cc
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/tbent/projects/archive/viscrupt/dg_waves_defunct/CMakeFiles $(CMAKE_PROGRESS_1)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/tbent/projects/dg_play/CMakeFiles $(CMAKE_PROGRESS_1)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/viscosaur.dir/python_interface.cc.o"
-	/usr/bin/ccache  g++  $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/viscosaur.dir/python_interface.cc.o -c /home/tbent/projects/archive/viscrupt/dg_waves_defunct/python_interface.cc
+	/usr/bin/ccache  g++  $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/viscosaur.dir/python_interface.cc.o -c /home/tbent/projects/dg_play/python_interface.cc
 
 CMakeFiles/viscosaur.dir/python_interface.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/viscosaur.dir/python_interface.cc.i"
-	/usr/bin/ccache  g++ $(CXX_DEFINES) $(CXX_FLAGS) -E /home/tbent/projects/archive/viscrupt/dg_waves_defunct/python_interface.cc > CMakeFiles/viscosaur.dir/python_interface.cc.i
+	/usr/bin/ccache  g++ $(CXX_DEFINES) $(CXX_FLAGS) -E /home/tbent/projects/dg_play/python_interface.cc > CMakeFiles/viscosaur.dir/python_interface.cc.i
 
 CMakeFiles/viscosaur.dir/python_interface.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/viscosaur.dir/python_interface.cc.s"
-	/usr/bin/ccache  g++ $(CXX_DEFINES) $(CXX_FLAGS) -S /home/tbent/projects/archive/viscrupt/dg_waves_defunct/python_interface.cc -o CMakeFiles/viscosaur.dir/python_interface.cc.s
+	/usr/bin/ccache  g++ $(CXX_DEFINES) $(CXX_FLAGS) -S /home/tbent/projects/dg_play/python_interface.cc -o CMakeFiles/viscosaur.dir/python_interface.cc.s
 
 CMakeFiles/viscosaur.dir/python_interface.cc.o.requires:
 .PHONY : CMakeFiles/viscosaur.dir/python_interface.cc.o.requires
@@ -74,17 +74,17 @@ CMakeFiles/viscosaur.dir/python_interface.cc.o.provides.build: CMakeFiles/viscos
 
 CMakeFiles/viscosaur.dir/control.cc.o: CMakeFiles/viscosaur.dir/flags.make
 CMakeFiles/viscosaur.dir/control.cc.o: control.cc
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/tbent/projects/archive/viscrupt/dg_waves_defunct/CMakeFiles $(CMAKE_PROGRESS_2)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/tbent/projects/dg_play/CMakeFiles $(CMAKE_PROGRESS_2)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/viscosaur.dir/control.cc.o"
-	/usr/bin/ccache  g++  $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/viscosaur.dir/control.cc.o -c /home/tbent/projects/archive/viscrupt/dg_waves_defunct/control.cc
+	/usr/bin/ccache  g++  $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/viscosaur.dir/control.cc.o -c /home/tbent/projects/dg_play/control.cc
 
 CMakeFiles/viscosaur.dir/control.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/viscosaur.dir/control.cc.i"
-	/usr/bin/ccache  g++ $(CXX_DEFINES) $(CXX_FLAGS) -E /home/tbent/projects/archive/viscrupt/dg_waves_defunct/control.cc > CMakeFiles/viscosaur.dir/control.cc.i
+	/usr/bin/ccache  g++ $(CXX_DEFINES) $(CXX_FLAGS) -E /home/tbent/projects/dg_play/control.cc > CMakeFiles/viscosaur.dir/control.cc.i
 
 CMakeFiles/viscosaur.dir/control.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/viscosaur.dir/control.cc.s"
-	/usr/bin/ccache  g++ $(CXX_DEFINES) $(CXX_FLAGS) -S /home/tbent/projects/archive/viscrupt/dg_waves_defunct/control.cc -o CMakeFiles/viscosaur.dir/control.cc.s
+	/usr/bin/ccache  g++ $(CXX_DEFINES) $(CXX_FLAGS) -S /home/tbent/projects/dg_play/control.cc -o CMakeFiles/viscosaur.dir/control.cc.s
 
 CMakeFiles/viscosaur.dir/control.cc.o.requires:
 .PHONY : CMakeFiles/viscosaur.dir/control.cc.o.requires
@@ -97,17 +97,17 @@ CMakeFiles/viscosaur.dir/control.cc.o.provides.build: CMakeFiles/viscosaur.dir/c
 
 CMakeFiles/viscosaur.dir/dg.cc.o: CMakeFiles/viscosaur.dir/flags.make
 CMakeFiles/viscosaur.dir/dg.cc.o: dg.cc
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/tbent/projects/archive/viscrupt/dg_waves_defunct/CMakeFiles $(CMAKE_PROGRESS_3)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/tbent/projects/dg_play/CMakeFiles $(CMAKE_PROGRESS_3)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/viscosaur.dir/dg.cc.o"
-	/usr/bin/ccache  g++  $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/viscosaur.dir/dg.cc.o -c /home/tbent/projects/archive/viscrupt/dg_waves_defunct/dg.cc
+	/usr/bin/ccache  g++  $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/viscosaur.dir/dg.cc.o -c /home/tbent/projects/dg_play/dg.cc
 
 CMakeFiles/viscosaur.dir/dg.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/viscosaur.dir/dg.cc.i"
-	/usr/bin/ccache  g++ $(CXX_DEFINES) $(CXX_FLAGS) -E /home/tbent/projects/archive/viscrupt/dg_waves_defunct/dg.cc > CMakeFiles/viscosaur.dir/dg.cc.i
+	/usr/bin/ccache  g++ $(CXX_DEFINES) $(CXX_FLAGS) -E /home/tbent/projects/dg_play/dg.cc > CMakeFiles/viscosaur.dir/dg.cc.i
 
 CMakeFiles/viscosaur.dir/dg.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/viscosaur.dir/dg.cc.s"
-	/usr/bin/ccache  g++ $(CXX_DEFINES) $(CXX_FLAGS) -S /home/tbent/projects/archive/viscrupt/dg_waves_defunct/dg.cc -o CMakeFiles/viscosaur.dir/dg.cc.s
+	/usr/bin/ccache  g++ $(CXX_DEFINES) $(CXX_FLAGS) -S /home/tbent/projects/dg_play/dg.cc -o CMakeFiles/viscosaur.dir/dg.cc.s
 
 CMakeFiles/viscosaur.dir/dg.cc.o.requires:
 .PHONY : CMakeFiles/viscosaur.dir/dg.cc.o.requires
@@ -237,6 +237,6 @@ CMakeFiles/viscosaur.dir/clean:
 .PHONY : CMakeFiles/viscosaur.dir/clean
 
 CMakeFiles/viscosaur.dir/depend:
-	cd /home/tbent/projects/archive/viscrupt/dg_waves_defunct && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/tbent/projects/archive/viscrupt/dg_waves_defunct /home/tbent/projects/archive/viscrupt/dg_waves_defunct /home/tbent/projects/archive/viscrupt/dg_waves_defunct /home/tbent/projects/archive/viscrupt/dg_waves_defunct /home/tbent/projects/archive/viscrupt/dg_waves_defunct/CMakeFiles/viscosaur.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/tbent/projects/dg_play && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/tbent/projects/dg_play /home/tbent/projects/dg_play /home/tbent/projects/dg_play /home/tbent/projects/dg_play /home/tbent/projects/dg_play/CMakeFiles/viscosaur.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/viscosaur.dir/depend
 

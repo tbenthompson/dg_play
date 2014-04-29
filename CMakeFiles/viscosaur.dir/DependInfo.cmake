@@ -4,9 +4,9 @@ SET(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 SET(CMAKE_DEPENDS_CHECK_CXX
-  "/home/tbent/projects/archive/viscrupt/dg_waves_defunct/control.cc" "/home/tbent/projects/archive/viscrupt/dg_waves_defunct/CMakeFiles/viscosaur.dir/control.cc.o"
-  "/home/tbent/projects/archive/viscrupt/dg_waves_defunct/dg.cc" "/home/tbent/projects/archive/viscrupt/dg_waves_defunct/CMakeFiles/viscosaur.dir/dg.cc.o"
-  "/home/tbent/projects/archive/viscrupt/dg_waves_defunct/python_interface.cc" "/home/tbent/projects/archive/viscrupt/dg_waves_defunct/CMakeFiles/viscosaur.dir/python_interface.cc.o"
+  "/home/tbent/projects/dg_play/control.cc" "/home/tbent/projects/dg_play/CMakeFiles/viscosaur.dir/control.cc.o"
+  "/home/tbent/projects/dg_play/dg.cc" "/home/tbent/projects/dg_play/CMakeFiles/viscosaur.dir/dg.cc.o"
+  "/home/tbent/projects/dg_play/python_interface.cc" "/home/tbent/projects/dg_play/CMakeFiles/viscosaur.dir/python_interface.cc.o"
   )
 SET(CMAKE_CXX_COMPILER_ID "GNU")
 

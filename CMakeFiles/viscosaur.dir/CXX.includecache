@@ -1072,11 +1072,11 @@ BaseTsd.h
 Zoltan_config.h
 /home/tbent/packages/trilinos_inst/include/Zoltan_config.h
 
-/home/tbent/projects/archive/viscrupt/dg_waves_defunct/dg.cc
+/home/tbent/projects/dg_play/dg.cc
 dg.h
-/home/tbent/projects/archive/viscrupt/dg_waves_defunct/dg.h
+/home/tbent/projects/dg_play/dg.h
 
-/home/tbent/projects/archive/viscrupt/dg_waves_defunct/dg.h
+/home/tbent/projects/dg_play/dg.h
 base/quadrature_lib.h
 -
 base/function.h
@@ -1128,6 +1128,10 @@ iostream
 fstream
 -
 cmath
+-
+boost/python/dict.hpp
+-
+boost/python.hpp
 -
 
 /usr/lib/openmpi/include/mpi.h

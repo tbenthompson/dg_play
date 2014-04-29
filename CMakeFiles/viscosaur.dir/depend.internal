@@ -25,8 +25,8 @@ CMakeFiles/viscosaur.dir/control.cc.o
  /home/tbent/packages/trilinos_inst/include/Epetra_SerialComm.h
  /home/tbent/packages/trilinos_inst/include/Epetra_SerialCommData.h
  /home/tbent/packages/trilinos_inst/include/Epetra_config.h
- /home/tbent/projects/archive/viscrupt/dg_waves_defunct/control.cc
- /home/tbent/projects/archive/viscrupt/dg_waves_defunct/control.h
+ /home/tbent/projects/dg_play/control.cc
+ /home/tbent/projects/dg_play/control.h
  /usr/lib/openmpi/include/mpi.h
  /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/comm.h
  /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/comm_inln.h
@@ -233,8 +233,8 @@ CMakeFiles/viscosaur.dir/dg.cc.o
  /home/tbent/packages/trilinos_inst/include/zoltan_eval.h
  /home/tbent/packages/trilinos_inst/include/zoltan_mem.h
  /home/tbent/packages/trilinos_inst/include/zoltan_types.h
- /home/tbent/projects/archive/viscrupt/dg_waves_defunct/dg.cc
- /home/tbent/projects/archive/viscrupt/dg_waves_defunct/dg.h
+ /home/tbent/projects/dg_play/dg.cc
+ /home/tbent/projects/dg_play/dg.h
  /usr/lib/openmpi/include/mpi.h
  /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/comm.h
  /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/comm_inln.h
@@ -559,9 +559,9 @@ CMakeFiles/viscosaur.dir/python_interface.cc.o
  /home/tbent/packages/trilinos_inst/include/zoltan_eval.h
  /home/tbent/packages/trilinos_inst/include/zoltan_mem.h
  /home/tbent/packages/trilinos_inst/include/zoltan_types.h
- /home/tbent/projects/archive/viscrupt/dg_waves_defunct/control.h
- /home/tbent/projects/archive/viscrupt/dg_waves_defunct/dg.h
- /home/tbent/projects/archive/viscrupt/dg_waves_defunct/python_interface.cc
+ /home/tbent/projects/dg_play/control.h
+ /home/tbent/projects/dg_play/dg.h
+ /home/tbent/projects/dg_play/python_interface.cc
  /usr/include/python2.7/Python.h
  /usr/include/python2.7/abstract.h
  /usr/include/python2.7/boolobject.h

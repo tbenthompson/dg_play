@@ -33,7 +33,7 @@ BOOST_PYTHON_MODULE(viscosaur)
     class_<vc::Vc>("Vc", init<list, dict>())
         .def("get_rank", &vc::Vc::get_rank);
     
-    class_<Step12<2>, boost::noncopyable >("DGMethod", init<int>())
+    class_<Step12<2>, boost::noncopyable >("DGMethod", init<bp::dict>())
         .def("run", &Step12<2>::run);
 }
 
