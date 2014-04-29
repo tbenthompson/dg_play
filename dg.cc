@@ -236,8 +236,13 @@ template <int dim>
 void Step12<dim>::compute_dt()
 {
     // std::cout << "Computing local time-step ...\n";
-
     dt = 1.0e20;
+    dt_max = 0.0;
+    
+    // The tree root is set
+    TimeStepLevelTree dt_root;
+    dt_root.dt = 1.0;
+    dt_root.index = 1;
 
     // Cell iterator
     typename DoFHandler<dim>::active_cell_iterator 
@@ -245,12 +250,24 @@ void Step12<dim>::compute_dt()
              endc = dof_handler.end();
     for (unsigned int c = 0; cell!=endc; ++cell, ++c)
     {
-        double h = cell->diameter ();
+        const double h = cell->diameter ();
+
         const Point<dim> cell_center = cell->center();
         Point<dim> beta;
         advection_speed(cell_center, beta);
 
-        dt = std::min ( dt, h / beta.norm ());
+        const double local_dt = h / beta.norm();
+
+        for(int op = 0; op < dt_options.size();op++)
+        {
+            if (dt_options[op] < local_dt)
+            {
+                dt_indices[op] = cell->index();
+            }
+        }
+
+        dt = std::min(dt, local_dt);
+        dt_max = std::max(dt_max, local_dt[c]);
     }
     dt *= cfl;
 }
@@ -492,6 +509,11 @@ void Step12<dim>::step(RHSIntegrator<dim>& rhs_integrator,
 
         // See page 3 of the Schlegel paper for this definition.
         const double c_squiggle = rk_c[stage] - rk_c[stage - 1];
+
+        // If this is a coarse-only step, then just add the runge kutta 
+        // step and move to the next stage. 
+        // If this is a coarse and fine step, then recursive to the next 
+        // time step level.
         if (c_squiggle > 0 && level < max_level)
         {
             r.scale(1.0 / c_squiggle);
@@ -503,9 +525,9 @@ void Step12<dim>::step(RHSIntegrator<dim>& rhs_integrator,
     }
 }
 
-//------------------------------------------------------------------------------
+//---------------------------------------------------------------------
 // Refine grid
-//------------------------------------------------------------------------------
+//---------------------------------------------------------------------
 template <int dim>
 void Step12<dim>::refine_grid (Vector<double> refinement_soln)
 {
@@ -551,7 +573,6 @@ void Step12<dim>::refine_grid (Vector<double> refinement_soln)
         {
             refinement_indicators(cell_no) = std::sqrt(numer / denom);
         }
-        // std::cout << numer << " " << denom << " " << refinement_indicators(cell_no) << std::endl;
     }
 
     cell = dof_handler.begin_active();
@@ -639,7 +660,9 @@ void Step12<dim>::compute_error(const double time) const
 template <int dim>
 void Step12<dim>::run ()
 {
-   GridGenerator::hyper_cube (triangulation,-1.0,+1.0);
+   GridGenerator::hyper_ball(triangulation);
+   static const HyperBallBoundary<dim> boundary;
+   triangulation.set_boundary (0, boundary);
    triangulation.refine_global(min_level);
    
    std::cout << "Number of active cells:       "

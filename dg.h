@@ -6,6 +6,7 @@
 #include <lac/vector.h>
 #include <grid/tria.h>
 #include <grid/grid_generator.h>
+#include <grid/tria_boundary_lib.h>
 #include <grid/grid_out.h>
 #include <grid/grid_refinement.h>
 #include <grid/tria_accessor.h>
@@ -35,12 +36,12 @@
 #include <boost/python/dict.hpp>
 #include <boost/python.hpp>
 namespace bp = boost::python;
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 // Main class of the problem
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 // Class for integrating rhs using MeshWorker
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 template <int dim>
 class RHSIntegrator
 {
@@ -62,6 +63,18 @@ class ExactSolution: public dealii::Function<dim>
         virtual double value(const dealii::Point<dim> &p,
                              const unsigned int component) const;
         double t;
+};
+
+struct TimeStepLevelTree
+{
+    // The time step for all the cells in this dt level.
+    double dt;
+
+    // The set of cells in this level, indexed by (level, index)
+    std::vector<std::pair<int, int> > cells;
+
+    // The child time step level.
+    TimeStepLevelTree* child;
 };
 
 template <int dim>
@@ -99,8 +112,10 @@ class Step12
       dealii::Vector<double> solution;
       dealii::Vector<double> solution_old;
       dealii::Vector<double> right_hand_side;
+
       int current_level;
       double dt;
+      double dt_max; 
       double cfl;
       double C;
 

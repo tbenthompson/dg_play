@@ -381,6 +381,8 @@ CMakeFiles/viscosaur.dir/dg.cc.o
  /usr/local/include/deal.II/grid/tria.h
  /usr/local/include/deal.II/grid/tria_accessor.h
  /usr/local/include/deal.II/grid/tria_accessor.templates.h
+ /usr/local/include/deal.II/grid/tria_boundary.h
+ /usr/local/include/deal.II/grid/tria_boundary_lib.h
  /usr/local/include/deal.II/grid/tria_faces.h
  /usr/local/include/deal.II/grid/tria_iterator.h
  /usr/local/include/deal.II/grid/tria_iterator.templates.h
@@ -771,6 +773,8 @@ CMakeFiles/viscosaur.dir/python_interface.cc.o
  /usr/local/include/deal.II/grid/tria.h
  /usr/local/include/deal.II/grid/tria_accessor.h
  /usr/local/include/deal.II/grid/tria_accessor.templates.h
+ /usr/local/include/deal.II/grid/tria_boundary.h
+ /usr/local/include/deal.II/grid/tria_boundary_lib.h
  /usr/local/include/deal.II/grid/tria_faces.h
  /usr/local/include/deal.II/grid/tria_iterator.h
  /usr/local/include/deal.II/grid/tria_iterator.templates.h
